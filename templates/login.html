@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+%}
+
+<h1>Welcome Home!</h1>
+<p>Please log in to continue</p>
+<button id="signInButton">Sign In with Google</button>
+<script>
+  // Firebase Authentication Script for Login
+  const auth = firebase.auth();
+
+  document.getElementById("signInButton").addEventListener("click", () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth
+      .signInWithPopup(provider)
+      .then((result) => {
+        console.log(`User signed in: ${result.user.displayName}`);
+        // Redirect to another page or show a success message
+        window.location.href = "/dashboard";
+      })
+      .catch((error) => {
+        console.error(`Sign-in error: ${error.message}`);
+      });
+  });
+</script>
+
+{% endblock %}
