@@ -1,90 +1,39 @@
 {% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
 %}
-<div class="container-sm">
-  <h1>Phone Number Login</h1>
-  <form id="loginForm">
-    <label for="phoneInput">Phone Number:</label>
-    <input
-      type="text"
-      id="phoneInput"
-      placeholder="+1234567890"
-      required
-    /><br /><br />
+<div class="d-flex justify-content-center align-items-center vh-100">
+  <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%">
+    <h2 class="text-center mb-4">Login</h2>
+    <div id="recaptcha-container" class="mb-3"></div>
 
-    <div id="recaptcha-container"></div>
-    <br />
+    <div class="mb-3">
+      <label for="phone-number" class="form-label">Phone Number</label>
+      <input
+        type="text"
+        id="phone-number"
+        placeholder="+1234567890"
+        class="form-control"
+      />
+    </div>
 
-    <button type="button" id="sendCodeButton" class="btn btn-primary">
-      Send Code
+    <button onclick="sendOTP()" class="btn btn-primary w-100 mb-3">
+      Send OTP
     </button>
-    <br /><br />
 
-    <label for="otpInput">Enter OTP:</label>
-    <input type="text" id="otpInput" placeholder="123456" /><br /><br />
-
-    <button type="button" id="verifyCodeButton" class="btn btn-success">
-      Verify Code
-    </button>
-  </form>
+    <div id="otp-section" style="display: none">
+      <div class="mb-3">
+        <label for="otp-code" class="form-label">Enter OTP</label>
+        <input
+          type="text"
+          id="otp-code"
+          placeholder="Enter OTP"
+          class="form-control"
+        />
+      </div>
+      <button onclick="verifyOTP()" class="btn btn-success w-100">
+        Verify OTP
+      </button>
+    </div>
+  </div>
 </div>
 
-<script type="module">
-  import {
-    auth,
-    setupRecaptcha,
-    signInWithPhoneNumber,
-  } from "/static/js/firebase-init.js";
-  // import { signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
-
-  let confirmationResult;
-
-  // Setup reCAPTCHA
-  document.addEventListener("DOMContentLoaded", () => {
-    setupRecaptcha("recaptcha-container");
-  });
-
-  // Send OTP
-  document
-    .getElementById("sendCodeButton")
-    .addEventListener("click", async () => {
-      const phoneNumber = document.getElementById("phoneInput").value.trim();
-      if (!phoneNumber) {
-        alert("Please enter a valid phone number.");
-        return;
-      }
-
-      try {
-        confirmationResult = await signInWithPhoneNumber(
-          auth,
-          phoneNumber,
-          window.recaptchaVerifier
-        );
-        alert("OTP sent successfully!");
-      } catch (error) {
-        console.error("Error sending OTP:", error);
-        alert("Failed to send OTP. Please try again.");
-      }
-    });
-
-  // Verify OTP
-  document
-    .getElementById("verifyCodeButton")
-    .addEventListener("click", async () => {
-      const otp = document.getElementById("otpInput").value.trim();
-      if (!otp) {
-        alert("Please enter the OTP.");
-        return;
-      }
-
-      try {
-        const result = await confirmationResult.confirm(otp);
-        const user = result.user;
-        alert(`Login successful! Welcome, ${user.phoneNumber}`);
-        window.location.href = "/dashboard";
-      } catch (error) {
-        console.error("Error verifying OTP:", error);
-        alert("Invalid OTP. Please try again.");
-      }
-    });
-</script>
 {% endblock %}

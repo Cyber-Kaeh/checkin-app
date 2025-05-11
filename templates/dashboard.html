@@ -2,7 +2,7 @@
 %}
 
 <div class="container-sm">
-  <h1 class="mt-5">Welcome back, User!</h1>
+  <h1 class="mt-5">Welcome back, <span id="user-name">User</span>!</h1>
   <p class="lead">Are you available to recieve texts?</p>
   <input
     type="radio"
@@ -27,5 +27,66 @@
     >Not Available</label
   >
 </div>
+<div class="container-sm">
+  <form>
+    <button
+      type="button"
+      class="btn btn-outline-warning mt-3"
+      id="send-text-button"
+      onclick="SubmitEvent()"
+    >
+      Confirm
+  </form>
+</div>
+<script>
+  function fetchUserName() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const phone = firebase.auth().currentUser.phoneNumber;
 
+        firebase
+          .database()
+          .ref("members/" + phone + "/name")
+          .once("value")
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              const userName = snapshot.val();
+              document.getElementById("user-name").textContent = userName;
+            } else {
+              console.log("User name not found in database.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user name:", error);
+          });
+      } else {
+        console.log("No user is signed in.");
+      }
+    });
+    
+  }
+  
+
+  function SubmitEvent() {
+    const selectedOption = document.querySelector(
+      'input[name="options-outlined"]:checked'
+    ).id;
+    const isAvailable = selectedOption === "success-outlined";
+    console.log("Available:", isAvailable);
+
+    const phone = firebase.auth().currentUser.phoneNumber;
+    firebase
+      .database()
+      .ref("members/" + phone + "/available")
+      .set(isAvailable)
+      .then(() => {
+        alert("Status updated successfully!");
+      })
+      .catch((error) => {
+        console.error("Error updating status:", error);
+        alert("Failed to update status.");
+      })
+  }
+  document.addEventListener("DOMContentLoaded", fetchUserName);
+</script>
 {% endblock %}

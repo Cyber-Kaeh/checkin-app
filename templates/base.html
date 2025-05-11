@@ -22,7 +22,7 @@
             <span class="ms-2">Spritual Matters</span>
           </a>
           <div class="d-flex flex-row-reverse">
-            <a href="{{ url_for('main.login') }}" class="btn btn-outline-success" id="signInButton">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success" id="signInButton">
                 Log In
               </a>
               <a href="{{ url_for('main.signup') }}" class="btn btn-outline-warning ms-2" id="signUpButton">
@@ -36,8 +36,116 @@
       <!-- Dynamic content will be injected here -->
       {% endblock %}
     </main>
-    <script type="module" src="/static/js/firebase-init.js"></script>
-    <script type="module" src="/static/js/auth-state.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-database-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAurrrsK2XH4PSKJrWDHrHYjU79_Rn04HM",
+        authDomain: "spiritual-matters-signin.firebaseapp.com",
+        projectId: "spiritual-matters-signin",
+        storageBucket: "spiritual-matters-signin.firebasestorage.app",
+        messagingSenderId: "1064211785611",
+        appId: "1:1064211785611:web:eaedb07360bf6c11f4318e",
+        measurementId: "G-3FFHRJ375X",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script>
+      let confirmationResult;
+
+      // Setup reCAPTCHA
+      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible',
+        callback: function(response) {
+          console.log("reCAPTCHA solved");
+        },
+        'expired-callback': function() {
+          alert("reCAPTCHA expired, try again.");
+        }
+      });
+
+      // Send OTP
+      function sendOTP() {
+        const phoneNumber = document.getElementById("phone-number").value;
+        const appVerifier = window.recaptchaVerifier;
+
+        firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+          .then(function(result) {
+            confirmationResult = result;
+            document.getElementById("otp-section").style.display = "block";
+            console.log("OTP sent");
+          }).catch(function(error) {
+            console.error("Error during signInWithPhoneNumber", error);
+            alert(error.message);
+          });
+      }
+
+      // Verify OTP
+      function verifyOTP() {
+        const code = document.getElementById("otp-code").value;
+
+        confirmationResult.confirm(code)
+          .then(function(result) {
+        const user = result.user;
+        const phone = user.phoneNumber;
+        console.log("Phone Auth successful. UID:", user.uid);
+
+        const dbRef = firebase.database().ref('members/' + phone);
+        dbRef.once('value').then(function(snapshot) {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            const userName = userData.name;
+            console.log("User Name:", userName);
+            
+            window.location.href = `/dashboard?name=${encodeURIComponent(userName)}`;
+          } else {
+            console.log("User not found in database");
+            const newUser = prompt("Please enter first name:");
+            dbRef.set({
+          name: newUser,
+          phone: phone,
+          available: false
+            });
+          }
+        })
+        .catch(function(error) {
+          console.log(firebase.auth().currentUser);
+          console.error("Error fetching user data:", error);
+          alert("Failed to fetch user data");
+        });
+          })
+          .catch(function(error) {
+        console.error("OTP verification failed", error);
+        alert("Invalid OTP");
+          });
+      }
+
+
+          //   user.getIdToken().then(function(idToken) {
+          //     // Send token to backend
+          //     fetch('/login', {
+          //       method: 'POST',
+          //       headers: {
+          //         'Content-Type': 'application/json'
+          //       },
+          //       body: JSON.stringify({ idToken: idToken })
+          //     }).then(res => {
+          //       if (res.ok) {
+          //         window.location.href = '/dashboard'; // your protected route
+          //       } else {
+          //         alert("Failed to log in on server");
+          //       }
+          //     });
+          //   });
+          // }).catch(function(error) {
+          //   console.error("OTP verification failed", error);
+          //   alert("Invalid OTP");
+          // });
+      
+    </script>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"

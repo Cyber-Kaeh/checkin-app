@@ -1,26 +1,43 @@
-from flask import Blueprint, redirect, render_template, url_for, request
+from flask import Blueprint, redirect, render_template, url_for, request, jsonify, session
 from src.config import db
+import firebase_admin
+from firebase_admin import credentials, auth
 
 main_bp = Blueprint('main', __name__)
+auth_bp = Blueprint('auth', __name__)
 
 @main_bp.route('/')
 def index():
     return render_template('index.html')
 
 
-@main_bp.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
-
-
-@main_bp.route('/login')
-def login():
-    return render_template('login.html')
-
-
 @main_bp.route('/signup')
 def signup():
     return render_template('signup.html')
+
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    
+    data = request.get_json()
+    id_token = data.get('idToken')
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        session['uid'] = decoded_token['uid']
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        print("Token verification failed:", e)
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+
+@auth_bp.route('/dashboard')
+def dashboard():
+    if 'uid' not in session:
+        return redirect(url_for('auth.login'))
+    return render_template('dashboard.html')
 
 # @main_bp.route('/')
 # def display_all_users():
