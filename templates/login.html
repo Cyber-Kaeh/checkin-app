@@ -1,36 +1,90 @@
 {% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
 %}
-
 <div class="container-sm">
-  <h1>Welcome to Spiritual Matters</h1>
-  <div id="firebaseui-auth-container"></div>
+  <h1>Phone Number Login</h1>
+  <form id="loginForm">
+    <label for="phoneInput">Phone Number:</label>
+    <input
+      type="text"
+      id="phoneInput"
+      placeholder="+1234567890"
+      required
+    /><br /><br />
+
+    <div id="recaptcha-container"></div>
+    <br />
+
+    <button type="button" id="sendCodeButton" class="btn btn-primary">
+      Send Code
+    </button>
+    <br /><br />
+
+    <label for="otpInput">Enter OTP:</label>
+    <input type="text" id="otpInput" placeholder="123456" /><br /><br />
+
+    <button type="button" id="verifyCodeButton" class="btn btn-success">
+      Verify Code
+    </button>
+  </form>
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
-<link
-  type="text/css"
-  rel="stylesheet"
-  href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"
-/>
+
 <script type="module">
-  import { auth, setupRecaptcha } from "/static/js/firebase-init.js";
-  import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js";
-  import { signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
-  // FirebaseUI config
-  const uiConfig = {
-    signInSuccessUrl: "/dashboard", // Redirect to dashboard on success
-    signInOptions: [
-      auth.GoogleAuthProvider.PROVIDER_ID,
-      auth.PhoneAuthProvider.PROVIDER_ID,
-    ],
-    tosUrl: "/terms", // Terms of service URL
-    privacyPolicyUrl: "/privacy", // Privacy policy URL
-  };
+  import {
+    auth,
+    setupRecaptcha,
+    signInWithPhoneNumber,
+  } from "/static/js/firebase-init.js";
+  // import { signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
 
-  // Initialize the FirebaseUI Widget using Firebase.
-  const ui = new firebaseui.auth.AuthUI(auth);
-  ui.start("#firebaseui-auth-container", uiConfig);
+  let confirmationResult;
+
+  // Setup reCAPTCHA
+  document.addEventListener("DOMContentLoaded", () => {
+    setupRecaptcha("recaptcha-container");
+  });
+
+  // Send OTP
+  document
+    .getElementById("sendCodeButton")
+    .addEventListener("click", async () => {
+      const phoneNumber = document.getElementById("phoneInput").value.trim();
+      if (!phoneNumber) {
+        alert("Please enter a valid phone number.");
+        return;
+      }
+
+      try {
+        confirmationResult = await signInWithPhoneNumber(
+          auth,
+          phoneNumber,
+          window.recaptchaVerifier
+        );
+        alert("OTP sent successfully!");
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        alert("Failed to send OTP. Please try again.");
+      }
+    });
+
+  // Verify OTP
+  document
+    .getElementById("verifyCodeButton")
+    .addEventListener("click", async () => {
+      const otp = document.getElementById("otpInput").value.trim();
+      if (!otp) {
+        alert("Please enter the OTP.");
+        return;
+      }
+
+      try {
+        const result = await confirmationResult.confirm(otp);
+        const user = result.user;
+        alert(`Login successful! Welcome, ${user.phoneNumber}`);
+        window.location.href = "/dashboard";
+      } catch (error) {
+        console.error("Error verifying OTP:", error);
+        alert("Invalid OTP. Please try again.");
+      }
+    });
 </script>
-
 {% endblock %}

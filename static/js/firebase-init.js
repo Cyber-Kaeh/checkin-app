@@ -26,7 +26,36 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const provider = new GoogleAuthProvider();
 
-// Initialize reCAPTCHA
+export { signInWithPhoneNumber, RecaptchaVerifier };
+
 export const setupRecaptcha = (containerId) => {
-  return new RecaptchaVerifier(containerId, {}, auth);
+  if (!auth) {
+    throw new Error("Firebase Auth is not initialized.");
+  }
+
+  try {
+    const verifier = new RecaptchaVerifier(
+      containerId,
+      {
+        size: "normal",
+        callback: (response) => {
+          console.log("reCAPTCHA solved, allow signInWithPhoneNumber.");
+        },
+        "expired-callback": () => {
+          console.log("reCAPTCHA expired, reset it.");
+        },
+      },
+      auth
+    );
+    
+    window.recaptchaVerifier = verifier;
+
+    // Render the reCAPTCHA widget explicitly
+    verifier.render();
+
+    return verifier;
+  } catch (error) {
+    console.error("Error initializing reCAPTCHA:", error);
+    throw error;
+  }
 };
