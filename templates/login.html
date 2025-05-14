@@ -1,7 +1,10 @@
 {% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
 %}
-<div class="d-flex justify-content-center align-items-center vh-100">
-  <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%">
+<div class="d-flex justify-content-center rounded-5">
+  <div
+    class="card shadow-lg bg-secondary text-light p-4"
+    style="max-width: 400px; width: 100%"
+  >
     <h2 class="text-center mb-4">Login</h2>
     <div id="recaptcha-container" class="mb-3"></div>
 
@@ -15,7 +18,7 @@
       />
     </div>
 
-    <button onclick="sendOTP()" class="btn btn-primary w-100 mb-3">
+    <button onclick="sendOTP()" class="btn btn-dark w-100 mb-3">
       Send OTP
     </button>
 

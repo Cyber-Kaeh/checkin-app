@@ -11,7 +11,7 @@
       crossorigin="anonymous"
     />
   </head>
-  <body>
+  <body class="bg-dark text-light">
     <header>
       <nav
         class="navbar bg-dark border-bottom border-body"
@@ -22,16 +22,16 @@
             <span class="ms-2">Spritual Matters</span>
           </a>
           <div class="d-flex flex-row-reverse">
-            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success" id="signInButton">
-                Log In
-              </a>
-              <a href="{{ url_for('main.signup') }}" class="btn btn-outline-warning ms-2" id="signUpButton">
-                Sign Up
-              </a>
+            <a 
+              href="{% if session.get('uid') %}{{ url_for('auth.logout') }}{% else %}{{ url_for('auth.login') }}{% endif %}" 
+              class="btn btn-outline-warning" 
+              id="signInButton">
+              {% if session.get('uid') %}Log Out{% else %}Log In{% endif %}
+            </a>
         </div>
       </nav>
     </header>
-    <main class="container-sm text-center">
+    <main class="container-sm text-center bg-dark text-light py-5">
       {% block content %}
       <!-- Dynamic content will be injected here -->
       {% endblock %}
@@ -88,61 +88,56 @@
 
         confirmationResult.confirm(code)
           .then(function(result) {
-        const user = result.user;
-        const phone = user.phoneNumber;
-        console.log("Phone Auth successful. UID:", user.uid);
+            const user = result.user;
+            const phone = user.phoneNumber;
+            console.log("Phone Auth successful. UID:", user.uid);
 
-        const dbRef = firebase.database().ref('members/' + phone);
-        dbRef.once('value').then(function(snapshot) {
-          if (snapshot.exists()) {
-            const userData = snapshot.val();
-            const userName = userData.name;
-            console.log("User Name:", userName);
-            
-            window.location.href = `/dashboard?name=${encodeURIComponent(userName)}`;
-          } else {
-            console.log("User not found in database");
-            const newUser = prompt("Please enter first name:");
-            dbRef.set({
-          name: newUser,
-          phone: phone,
-          available: false
+            const dbRef = firebase.database().ref('members/' + phone);
+            dbRef.once('value').then(function(snapshot) {
+              if (snapshot.exists()) {
+                const userData = snapshot.val();
+                const userName = userData.name;
+                console.log("User Name:", userName);
+              } else {
+                console.log("User not found in database");
+                const newUser = prompt("Please enter first name:");
+                dbRef.set({
+                  name: newUser,
+                  phone: phone,
+                  available: false
+                });
+              }
+
+              // 🔐 Only call Flask backend *after* DB check
+              user.getIdToken().then(function(idToken) {
+                fetch('/login', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ idToken: idToken })
+                }).then(res => {
+                  if (res.ok) {
+                    window.location.href = '/dashboard'; // ✅ redirect now works
+                  } else {
+                    alert("Failed to log in on server");
+                  }
+                });
+              });
+
+            }).catch(function(error) {
+              console.error("Error fetching user data:", error);
+              alert("Failed to fetch user data");
             });
-          }
-        })
-        .catch(function(error) {
-          console.log(firebase.auth().currentUser);
-          console.error("Error fetching user data:", error);
-          alert("Failed to fetch user data");
-        });
           })
           .catch(function(error) {
-        console.error("OTP verification failed", error);
-        alert("Invalid OTP");
+            console.error("OTP verification failed", error);
+            alert("Invalid OTP");
           });
       }
 
 
-          //   user.getIdToken().then(function(idToken) {
-          //     // Send token to backend
-          //     fetch('/login', {
-          //       method: 'POST',
-          //       headers: {
-          //         'Content-Type': 'application/json'
-          //       },
-          //       body: JSON.stringify({ idToken: idToken })
-          //     }).then(res => {
-          //       if (res.ok) {
-          //         window.location.href = '/dashboard'; // your protected route
-          //       } else {
-          //         alert("Failed to log in on server");
-          //       }
-          //     });
-          //   });
-          // }).catch(function(error) {
-          //   console.error("OTP verification failed", error);
-          //   alert("Invalid OTP");
-          // });
+      
       
     </script>
 

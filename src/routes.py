@@ -33,6 +33,11 @@ def login():
         return jsonify({'error': 'Unauthorized'}), 401
     
 
+@auth_bp.route('/logout')
+def logout():
+    session.pop('uid', None)
+    return redirect(url_for('main.index'))
+
 @auth_bp.route('/dashboard')
 def dashboard():
     if 'uid' not in session:
