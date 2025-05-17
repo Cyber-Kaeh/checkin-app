@@ -44,18 +44,6 @@ def dashboard():
         return redirect(url_for('auth.login'))
     return render_template('dashboard.html')
 
-# @main_bp.route('/')
-# def display_all_users():
-#     result = db.child("members").get()
-#     print("Raw result:", result.val())
-#     if result.val() is not None:
-#         for user in result.each():
-#             print(user.val())
-#     else:
-#         print("No data found.")
-#     return 
-    
-
 # @main_bp.route('/add_member', methods=['GET', 'POST'])
 # def add_member():
 #     if request.method == 'POST':

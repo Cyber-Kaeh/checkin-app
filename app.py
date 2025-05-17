@@ -1,15 +1,24 @@
-from flask import Flask, request, jsonify, session, redirect
-import firebase_admin
-from firebase_admin import credentials, auth
-from src.routes import main_bp, auth_bp
+from flask import Flask, render_template, request, jsonify, session, redirect
+# from src.routes import main_bp, auth_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-app.register_blueprint(main_bp)
-app.register_blueprint(auth_bp)
+# app.register_blueprint(main_bp)
+# app.register_blueprint(auth_bp)
 
-cred = credentials.Certificate('firebase_key.json')
-firebase_admin.initialize_app(cred)
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
 
 
 if __name__ == "__main__":
