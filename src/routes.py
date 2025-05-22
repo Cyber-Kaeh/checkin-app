@@ -1,7 +1,8 @@
-from flask import Blueprint, redirect, render_template, url_for, request, jsonify, session
+from flask import Blueprint, redirect, render_template, url_for, request, jsonify, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash
+from src.db_config import Session, User
 from src.config import db
-import firebase_admin
-from firebase_admin import credentials, auth
 
 main_bp = Blueprint('main', __name__)
 auth_bp = Blueprint('auth', __name__)
@@ -18,19 +19,22 @@ def signup():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'GET':
-        return render_template('login.html')
-    
-    data = request.get_json()
-    id_token = data.get('idToken')
-
-    try:
-        decoded_token = auth.verify_id_token(id_token)
-        session['uid'] = decoded_token['uid']
-        return jsonify({'status': 'success'}), 200
-    except Exception as e:
-        print("Token verification failed:", e)
-        return jsonify({'error': 'Unauthorized'}), 401
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        session_db = Session()
+        user = session_db.query(User).filter_by(name=name).first()
+        session_db.close()
+        if user and user.check_phone(phone):
+            session['uid'] = user.id
+            flash('Logged in successfully!', 'success')
+            session_db.close()
+            return redirect(url_for('auth.dashboard'))
+        else:
+            flash('Invalid username or password', 'danger')
+            session_db.close()
+            return render_template('login.html')
+    return render_template('login.html')
     
 
 @auth_bp.route('/logout')
