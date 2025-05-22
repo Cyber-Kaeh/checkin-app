@@ -2,7 +2,6 @@ from flask import Blueprint, redirect, render_template, url_for, request, jsonif
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
 from src.db_config import Session, User
-from src.config import db
 
 main_bp = Blueprint('main', __name__)
 auth_bp = Blueprint('auth', __name__)
@@ -48,25 +47,22 @@ def dashboard():
         return redirect(url_for('auth.login'))
     return render_template('dashboard.html')
 
-# @main_bp.route('/add_member', methods=['GET', 'POST'])
-# def add_member():
-#     if request.method == 'POST':
-#         name = request.form.get('name')
-#         phone = request.form.get('phone')
-#         available = request.form.get('available') == 'on'  # Checkbox for availability
+@main_bp.route('/add_member', methods=['GET', 'POST'])
+def add_member():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        available = request.form.get('available') == 'on'
 
-#         # Create a new member entry
-#         new_member = {
-#             "name": name,
-#             "phone": phone,
-#             "available": available
-#         }
+        session_db = Session()
+        new_user = User(name=name, phone=phone, available=available)
+        new_user.set_phone(phone)
+        session_db.add(new_user)
+        session_db.commit()
+        session_db.close()
 
-#         # Push the new member to the database
-#         db.child("members").push(new_member)
+        flash('Glad your here!', 'success')
+        return redirect(url_for('main.home'))
 
-#         # Redirect to the home page
-#         return redirect(url_for('main.home'))
-
-#     # Render the form to add a new member
-#     return render_template('add_member.html')
+    # Render the form to add a new member
+    return render_template('add_member.html')

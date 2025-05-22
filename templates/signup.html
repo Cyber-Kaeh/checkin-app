@@ -1,9 +1,49 @@
-{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+{% extends "base.html" %} {% block title %}Signup{% endblock %} {% block content
 %}
 
 <div class="container-sm">
   <h1 class="mt-5">Welcome Home!</h1>
-  <p class="lead">This is the signup page!</p>
-</div>
+  <p class="lead">
+    Enter your first name and at least the first initial of last name.
+  </p>
+  <div class="d-flex justify-content-center rounded-5">
+    <div
+      class="card shadow-lg bg-secondary text-light p-4"
+      style="max-width: 400px; width: 100%"
+    >
+      <h2 class="text-center mb-4">Sign Up</h2>
+      <form method="POST" action="/signup">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="first-name" class="form-label">First Name</label>
+          <input
+            type="text"
+            id="first-name"
+            name="first_name"
+            placeholder="Enter your first name"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="last-name" class="form-label">Last Name</label>
+          <input
+            type="text"
+            id="last-name"
+            name="last_name"
+            placeholder="Enter your last name"
+            class="form-control"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-dark w-100 mb-3">Sign Up</button>
+        <div class="text-center">
+          <p class="mb-0">Already have an account?</p>
+          <a href="/login" class="btn btn-link">Login</a>
+        </div>
 
-{% endblock %}
+        {% endblock %}
+      </form>
+    </div>
+  </div>
+</div>

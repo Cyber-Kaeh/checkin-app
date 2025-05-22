@@ -6,37 +6,31 @@
     style="max-width: 400px; width: 100%"
   >
     <h2 class="text-center mb-4">Login</h2>
-    <div id="recaptcha-container" class="mb-3"></div>
-
-    <div class="mb-3">
-      <label for="phone-number" class="form-label">Phone Number</label>
-      <input
-        type="text"
-        id="phone-number"
-        placeholder="+1234567890"
-        class="form-control"
-      />
-    </div>
-
-    <button onclick="sendOTP()" class="btn btn-dark w-100 mb-3">
-      Send OTP
-    </button>
-
-    <div id="otp-section" style="display: none">
+    <form method="POST" action="{{ url_for('auth.login') }}">
       <div class="mb-3">
-        <label for="otp-code" class="form-label">Enter OTP</label>
+        <label for="name" class="form-label">Name</label>
         <input
           type="text"
-          id="otp-code"
-          placeholder="Enter OTP"
+          id="name"
+          name="name"
+          placeholder="Enter your name"
           class="form-control"
+          required
         />
       </div>
-      <button onclick="verifyOTP()" class="btn btn-success w-100">
-        Verify OTP
-      </button>
-    </div>
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input
+          type="text"
+          id="phone"
+          name="phone"
+          placeholder="+1234567890"
+          class="form-control"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-dark w-100 mb-3">Log In</button>
+    </form>
   </div>
 </div>
-
 {% endblock %}
