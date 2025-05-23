@@ -1,8 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
+from flask_wtf import CSRFProtect
 from src.routes import main_bp, auth_bp
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv("SECRET_KEY")
+csrf = CSRFProtect(app)
+
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
 

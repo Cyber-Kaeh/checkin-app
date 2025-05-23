@@ -10,6 +10,7 @@
       integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.min.css"/>
   </head>
   <body class="bg-dark text-light">
     <header>
@@ -36,10 +37,42 @@
       <!-- Dynamic content will be injected here -->
       {% endblock %}
     </main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <style>
+      .flash-message {
+        font-size: 0.8rem;
+        max-width: 60%;
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        transition: opacity 0.5s ease-in-out;
+      }
+    </style>
+    <script>
+      setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+          var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+          bsAlert.close();
+        });
+      }, 4000);
+    </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
   </body>
 </html>

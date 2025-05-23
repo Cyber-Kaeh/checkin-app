@@ -12,38 +12,34 @@
       style="max-width: 400px; width: 100%"
     >
       <h2 class="text-center mb-4">Sign Up</h2>
-      <form method="POST" action="/signup">
-        {% csrf_token %}
+      <form method="POST" action="{{ url_for('main.signup')}}">
+        {{ form.hidden_tag() }}
         <div class="mb-3">
-          <label for="first-name" class="form-label">First Name</label>
+          {{ form.name(class="form-control", placeholder="Name and Initial") }}
+        </div>
+        <div class="mb-4">
+          {{ form.phone(class="form-control", placeholder="Phone Number") }}
+        </div>
+        <div class="mb-5 form-check form-switch d-flex">
           <input
-            type="text"
-            id="first-name"
-            name="first_name"
-            placeholder="Enter your first name"
-            class="form-control"
-            required
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="isAvailableSwitch"
           />
+          <label class="form-check-label ms-2" for="isAvailableSwitch"
+            >Available Now?</label
+          >
         </div>
-        <div class="mb-3">
-          <label for="last-name" class="form-label">Last Name</label>
-          <input
-            type="text"
-            id="last-name"
-            name="last_name"
-            placeholder="Enter your last name"
-            class="form-control"
-            required
-          />
+        {{ form.submit(class="btn btn-dark w-100 mb-3") }}
+        <div class="text-center align-items-center">
+          <p class="mb-0">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}"> Login</a>
+          </p>
         </div>
-        <button type="submit" class="btn btn-dark w-100 mb-3">Sign Up</button>
-        <div class="text-center">
-          <p class="mb-0">Already have an account?</p>
-          <a href="/login" class="btn btn-link">Login</a>
-        </div>
-
-        {% endblock %}
       </form>
     </div>
   </div>
 </div>
+{% endblock %}

@@ -7,30 +7,30 @@
   >
     <h2 class="text-center mb-4">Login</h2>
     <form method="POST" action="{{ url_for('auth.login') }}">
+      {{ form.hidden_tag() }}
       <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          placeholder="Enter your name"
-          class="form-control"
-          required
-        />
+        <!-- prettier-ignore -->
+        {{ form.name(class="form-control", id="name", placeholder="Name and Initial") }}
       </div>
       <div class="mb-3">
-        <label for="phone" class="form-label">Phone Number</label>
-        <input
-          type="text"
-          id="phone"
-          name="phone"
-          placeholder="+1234567890"
-          class="form-control"
-          required
-        />
+        <!-- prettier-ignore -->
+        {{ form.phone(class="form-control", id="phone", placeholder="Phone Number") }}
       </div>
-      <button type="submit" class="btn btn-dark w-100 mb-3">Log In</button>
+      {{ form.submit(class="btn btn-dark w-100 mb-3") }}
     </form>
+    <p class="text-start">
+      Or sign up <a href="{{ url_for('main.signup') }}">here</a>.
+    </p>
   </div>
 </div>
+<script>
+  var input = document.querySelector("#phone");
+  if (input) {
+    window.intlTelInput(input, {
+      initialCountry: "us",
+      utilsScript:
+        "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+    });
+  }
+</script>
 {% endblock %}
