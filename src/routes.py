@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
 from src.db_config import Session, User
 from src.forms import SignupForm, LoginForm
+import re
 
 main_bp = Blueprint('main', __name__)
 auth_bp = Blueprint('auth', __name__)
@@ -12,12 +13,13 @@ def index():
     return render_template('index.html')
 
 
-@main_bp.route('/signup')
+@main_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        name = form.name.data.strip()
-        phone = form.phone.data.strip()
+        name = ''.join(form.name.data.split()).lower()
+        phone = re.sub(r'\D', '', form.phone.data)
+        print(f"Name: {name}, Phone: {phone}")
         available = form.available.data
 
         session_db = Session()
@@ -25,6 +27,7 @@ def signup():
         new_user.set_phone(phone)
         session_db.add(new_user)
         session_db.commit()
+        session['uid'] = new_user.id
         session_db.close()
 
         flash('Glad your here!', 'success')
@@ -37,8 +40,8 @@ def signup():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        name = form.name.data.strip()
-        phone = form.phone.data.strip('()- ')
+        name = ''.join(form.name.data.split()).lower()
+        phone = re.sub(r'\D', '', form.phone.data)
 
         session_db = Session()
         user = session_db.query(User).filter_by(name=name).first()
@@ -56,30 +59,30 @@ def login():
 @auth_bp.route('/logout')
 def logout():
     session.pop('uid', None)
+    flash('Keep coming back!', 'danger')
     return redirect(url_for('main.index'))
 
 @auth_bp.route('/dashboard')
 def dashboard():
+    form = SignupForm()
     if 'uid' not in session:
         return redirect(url_for('auth.login'))
-    return render_template('dashboard.html')
+    session_db = Session()
+    user = session_db.query(User).filter_by(id=session.get('uid')).first()
+    return render_template('dashboard.html', user=user, form=form)
 
-# @main_bp.route('/add_member', methods=['GET', 'POST'])
-# def add_member():
-#     if request.method == 'POST':
-#         name = request.form.get('name')
-#         phone = request.form.get('phone')
-#         available = request.form.get('available') == 'on'
-
-#         session_db = Session()
-#         new_user = User(name=name, phone=phone, available=available)
-#         new_user.set_phone(phone)
-#         session_db.add(new_user)
-#         session_db.commit()
-#         session_db.close()
-
-#         flash('Glad your here!', 'success')
-#         return redirect(url_for('main.index'))
-
-#     # Render the form to add a new member
-#     return render_template('add_member.html')
+@auth_bp.route('/toggle-available', methods=['POST'])
+def toggle_available():
+    if 'uid' not in session:
+        flash('Your not logged in?!', 'danger')
+        return redirect(url_for('auth.login'))
+    session_db = Session()
+    user = session_db.query(User).get(session['uid'])
+    if user:
+        user.available = not user.available
+        session_db.commit()
+        session_db.close()
+        flash('Your availability has been updated!', 'success')
+    else:
+        flash('User not found', 'danger')
+    return redirect(url_for('auth.dashboard'))

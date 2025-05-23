@@ -21,12 +21,7 @@
           {{ form.phone(class="form-control", placeholder="Phone Number") }}
         </div>
         <div class="mb-5 form-check form-switch d-flex">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-            id="isAvailableSwitch"
-          />
+          {{ form.available(class="form-check-input", id="isAvailableSwitch") }}
           <label class="form-check-label ms-2" for="isAvailableSwitch"
             >Available Now?</label
           >

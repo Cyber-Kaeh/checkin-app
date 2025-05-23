@@ -23,12 +23,18 @@
             <span class="ms-2">Spritual Matters</span>
           </a>
           <div class="d-flex flex-row-reverse">
-            <a href="{{ url_for('auth.dashboard') }}" class="btn btn-outline-warning">
+            <a href="{{ url_for('auth.dashboard') }}" class="btn btn-outline-warning btn-sm ms-2">
               Dashboard
             </a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success">
-              Log In
-            </a>
+              {% if session.get('uid') %}
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm ms-1">
+                  Log Out
+                </a>
+              {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success btn-sm ms-1">
+                  Log In
+                </a>
+              {% endif %}
         </div>
       </nav>
     </header>
@@ -39,9 +45,9 @@
     </main>
         {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="container mt-3">
+        <div class="container mt-3 d-flex justify-content-end">
           {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ category }} alert-dismissible flash-message fade show mx-auto" role="alert">
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -53,8 +59,10 @@
       .flash-message {
         font-size: 0.8rem;
         max-width: 60%;
-        margin: 0.5rem 0;
-        padding: 0.5rem;
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 1050;
         border-radius: 0.5rem;
         transition: opacity 0.5s ease-in-out;
       }
