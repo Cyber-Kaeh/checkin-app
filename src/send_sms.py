@@ -7,10 +7,8 @@ import random
 
 
 CARRIERS = {
-    "att": "@text.att.net",
-    "att-old": "@mmode.com",
-    "att-cingular": "@cingularme.com",
     "tmobile": "@tmomail.net",
+    "att": "@text.att.net",
     "verizon": "@vtext.com",
     "sprint": "@messaging.sprintpcs.com",
     "boost": "@myboostmobile.com",
@@ -20,6 +18,8 @@ CARRIERS = {
     "sprint": "@messaging.sprintpcs.com",
     "sprint2": "@pm.sprint.com",
     "straighttalk": "@vtext.com",
+    "att-old": "@mmode.com",
+    "att-cingular": "@cingularme.com",
 }
 
 messages = [
