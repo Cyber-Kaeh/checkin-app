@@ -1,0 +1,13 @@
+{% extends "base.html" %} {% block title %}Let Me In!{% endblock %}
+<!--prettier ignore-->
+{% block content %}
+
+<div class="container-sm bg-secondary rounded-3 shadow-lg">
+  <h1>Welcome!</h1>
+  <p class="">If you need to be let in to the meeting, tap "Okay!"</p>
+  <form method="POST" action="{{ url_for('guest.send_sms') }}">
+    {{ form.hidden_tag() }}
+    <button type="submit" class="btn btn-success w-100 mb-3">Okay!</button>
+  </form>
+</div>
+{% endblock %}

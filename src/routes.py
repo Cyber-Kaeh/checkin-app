@@ -2,11 +2,13 @@ from flask import Blueprint, redirect, render_template, url_for, request, jsonif
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
 from src.db_config import Session, User
-from src.forms import SignupForm, LoginForm
+from src.forms import SignupForm, LoginForm, EmptyForm
+from src.send_sms import send_messages
 import re
 
 main_bp = Blueprint('main', __name__)
 auth_bp = Blueprint('auth', __name__)
+guest_bp = Blueprint('guest', __name__)
 
 @main_bp.route('/')
 def index():
@@ -86,3 +88,18 @@ def toggle_available():
     else:
         flash('User not found', 'danger')
     return redirect(url_for('auth.dashboard'))
+
+@guest_bp.route('/request')
+def request():
+    form = EmptyForm()
+    return render_template('request.html', form=form)
+
+@guest_bp.route('/send-sms', methods=['POST'])
+def send_sms():
+    flash('Sending messages to available members!', 'success')
+    send_messages()
+    return redirect(url_for('guest.waiting'))
+
+@guest_bp.route('/waiting')
+def waiting():
+    return render_template('waiting.html')

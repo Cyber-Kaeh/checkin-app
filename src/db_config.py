@@ -11,7 +11,7 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    phone_hash = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
     available = Column(Boolean, default=False, nullable=False)
 
     def set_phone(self, phone):
@@ -23,11 +23,12 @@ class User(Base):
 
 def add_sample_data():
     sess = Session()
-    user1 = User(name="JohnD", available=True)
-    user1.set_phone("7045551111")
-    user2 = User(name="BobB", available=False)
-    user2.set_phone("7045552222")
-    sess.add_all([user1, user2])
+    user1 = User(name="JohnD", phone="7045551111", available=True)
+    # user1.set_phone("7045551111")
+    user2 = User(name="BobB", phone="7045552222", available=False)
+    # user2.set_phone("7045552222")
+    ant = User(name="Anthony", phone="7042674767", available=True)
+    sess.add_all([user1, user2, ant])
     sess.commit()
     sess.close()
 

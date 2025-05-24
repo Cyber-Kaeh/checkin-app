@@ -12,3 +12,6 @@ class LoginForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     phone = StringField('Phone', validators=[DataRequired()])
     submit = SubmitField('Log In')
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')

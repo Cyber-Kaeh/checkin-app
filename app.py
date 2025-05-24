@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
 from flask_wtf import CSRFProtect
-from src.routes import main_bp, auth_bp
+from src.routes import main_bp, auth_bp, guest_bp
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,6 +11,7 @@ csrf = CSRFProtect(app)
 
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(guest_bp)
 
 
 if __name__ == "__main__":
